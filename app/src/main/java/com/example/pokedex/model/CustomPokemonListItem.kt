@@ -9,21 +9,22 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 @Entity(
-    tableName = "pokemon", indices = (arrayOf(Index(value = arrayOf("name"), unique = true)))
+    tableName = "pokemon",
+    indices = [Index(value = ["name"], unique = true)]
 )
 data class CustomPokemonListItem(
     @ColumnInfo(name = "name")
     val name: String,
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    val id: Int? = null,
+    val id: Int = 0,
 
     @ColumnInfo(name = "api")
     val apiId: Int,
 
     @ColumnInfo(name = "image")
-    val Image: String? =null,
+    val image: String? = null,
 
     @ColumnInfo(name = "positionLeft")
     val positionLeft: Int? = null,
@@ -35,8 +36,6 @@ data class CustomPokemonListItem(
     val type: String,
 
     @ColumnInfo(name = "isSaved")
-    var isSaved: String = "false"
+    var isSaved: Boolean = false
 
 ) : Parcelable
-
-

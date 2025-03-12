@@ -13,14 +13,17 @@ glide = "4.16.0"
 retrofit = "2.9.0"
 nav = "2.7.0"
 lifecycle = "2.6.1"
-room = "2.5.2"
+room = "2.6.1"
 coroutines = "1.7.1"
-hilt = "2.46.1"
+hilt = "2.50"
 work = "2.8.1"
 androidxEspressoIdlingResource = "3.5.1"
+swiperefreshlayout = "1.1.0"
+foundationAndroid = "1.7.8"
 
 
 [libraries]
+dagger = { group = "com.google.dagger", name = "dagger", version.ref = "hilt" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -46,7 +49,7 @@ hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-work = { group = "androidx.hilt", name = "hilt-work", version = "1.0.0" }
 work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
-circularimageview = { group = "com.mikhaellopez", name = "circularimageview", version = "4.2.0" }
+circularimageview = { group = "com.mikhaellopez", name = "circularimageview", version = "4.3.1" }
 espresso-idling-resource = { group = "androidx.test.espresso", name = "espresso-idling-resource", version.ref = "androidxEspressoIdlingResource" }
 test-core = { group = "androidx.test", name = "core", version = "1.4.0" }
 junit4 = { group = "junit", name = "junit", version = "4.13.2" }
@@ -60,14 +63,15 @@ hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testi
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 fragment-testing = { group = "androidx.fragment", name = "fragment-testing", version = "1.5.1" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version = "18.1.0" }
-
+androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
+gson = { group = "com.google.code.gson", name = "gson", version = "2.8.8" }
 
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version = "1.9.22" }
-
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 
 
 

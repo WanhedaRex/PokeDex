@@ -1,14 +1,21 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    kotlin("kapt")
-    //kotlin("parcelize")
+    id("kotlin-kapt")  // Use the alias from libs.versions.toml if possible
     id("kotlin-parcelize")
+    id("com.google.dagger.hilt.android")
+}
+kapt {
+    correctErrorTypes = true
 }
 
 android {
     namespace = "com.example.pokedex"
     compileSdk = 35
+
+    buildFeatures {
+        viewBinding = true
+    }
 
     defaultConfig {
         applicationId = "com.example.pokedex"
@@ -38,43 +45,56 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
+    // Core AndroidX
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    implementation(libs.glide)
-    kapt(libs.glide.compiler)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.gson)
-    implementation(libs.navigation.fragment.ktx)
-    implementation(libs.navigation.ui.ktx)
-    implementation(libs.lifecycle.viewmodel.ktx)
-    implementation(libs.lifecycle.livedata.ktx)
-    implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.foundation.android)
+
+    // Room
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     kapt(libs.room.compiler)
+
+    // Coroutines
     implementation(libs.coroutines.android)
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
-    implementation("androidx.hilt:hilt-work:1.0.0")
-    kapt("androidx.hilt:hilt-compiler:1.0.0")
+
+    // Lifecycle
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.lifecycle.runtime.ktx)
+
+    // Navigation
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+
+    // Glide
+    implementation(libs.glide)
+    kapt(libs.glide.compiler)
+
+    // Hilt
+    implementation(libs.dagger)
+    implementation(libs.hilt.android)  // Uses 2.50 from libs.versions.toml
+    kapt(libs.hilt.compiler)          // Uses 2.50 from libs.versions.toml
+    implementation("androidx.hilt:hilt-work:1.2.0")  // Update to latest stable version
+    kapt("androidx.hilt:hilt-compiler:1.2.0")        // Match hilt-work version
+
+    // Work Manager
     implementation(libs.work.runtime.ktx)
+
+    // CircularImageView
     implementation(libs.circularimageview)
-    implementation(libs.espresso.idling.resource)
-    androidTestImplementation(libs.espresso.idling.resource)
-    implementation(libs.test.core)
-    testImplementation(libs.junit4)
+
+    // Testing
+    testImplementation(libs.junit)
+    testImplementation(libs.test.core)
     testImplementation(libs.hamcrest.all)
     testImplementation(libs.core.testing)
     testImplementation(libs.robolectric)
@@ -83,8 +103,16 @@ dependencies {
     testImplementation(libs.mockito.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.espresso.idling.resource)
     androidTestImplementation(libs.hilt.android.testing)
     kaptAndroidTest(libs.hilt.compiler)
     androidTestImplementation(libs.fragment.testing)
+
+    // Play Services
     implementation(libs.play.services.maps)
+}
+buildscript {
+    dependencies {
+        classpath("com.google.dagger:hilt-android-gradle-plugin:2.48") // Check for the latest version
+    }
 }

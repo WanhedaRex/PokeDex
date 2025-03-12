@@ -9,6 +9,6 @@ interface MainRepository {
     suspend fun getPokemonListNextPage() : Resource<List<CustomPokemonListItem>>
     suspend fun getSavedPokemon() : Resource<List<CustomPokemonListItem>>
     suspend fun getPokemonDetail(id: Int) : Resource<PokemonDetailItem>
-    suspend fun getLastStoredPokemon() : CustomPokemonListItem
+    suspend fun getLastStoredPokemon() : CustomPokemonListItem?
     suspend fun savePokemon(pokemonListItem: CustomPokemonListItem)
 }

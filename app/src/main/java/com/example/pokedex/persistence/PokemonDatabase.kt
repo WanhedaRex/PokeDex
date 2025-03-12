@@ -10,7 +10,7 @@ import com.example.pokedex.model.CustomPokemonListItem
 import com.example.pokedex.model.PokemonDetailItem
 
 
-@Database(entities =[CustomPokemonListItem::class, PokemonDetailItem:: class], version = 1, exportSchema = false)
+@Database(entities =[CustomPokemonListItem::class, PokemonDetailItem:: class], version = 1)
 @TypeConverters(Converters::class)
 abstract class PokemonDatabase : RoomDatabase() {
 

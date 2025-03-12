@@ -11,34 +11,30 @@ import com.example.pokedex.model.CustomPokemonListItem
 @Dao
 interface PokemonDAO {
 
-    // Pa buscar en db
     @Query("SELECT * FROM pokemon WHERE name LIKE '%' || :name || '%'")
-    suspend fun searchPokemonByName(name: String): List<CustomPokemonListItem>?
+    suspend fun searchPokemonByName(name: String): List<CustomPokemonListItem>
 
-
-    @Query("SELECT * FROM pokemon WHERE type Like :type")
-    suspend fun searchPokemonByType(type: String): List<CustomPokemonListItem>?
+    @Query("SELECT * FROM pokemon WHERE type LIKE :type")
+    suspend fun searchPokemonByType(type: String): List<CustomPokemonListItem>
 
     @Query("SELECT * FROM pokemon")
-    fun getPokemon(): List<CustomPokemonListItem>
+    suspend fun getPokemon(): List<CustomPokemonListItem>
 
     @Query("SELECT * FROM pokemon WHERE isSaved = 'true'")
-    suspend fun getSavedPokemon(): List<CustomPokemonListItem>?
+    suspend fun getSavedPokemon(): List<CustomPokemonListItem>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertPokemonList(list: List<CustomPokemonListItem>)
+    suspend fun insertPokemonList(list: List<CustomPokemonListItem>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertPokemon(item: CustomPokemonListItem)
+    suspend fun insertPokemon(item: CustomPokemonListItem)
 
-
-    @Query("SELECT * FROM pokemonDetails WHERE id Like :id")
+    @Query("SELECT * FROM pokemonDetails WHERE id LIKE :id")
     suspend fun getPokemonDetails(id: Int): PokemonDetailItem?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertPokemonDetailsItem(pokemonDetailItem: PokemonDetailItem)
+    suspend fun insertPokemonDetailsItem(pokemonDetailItem: PokemonDetailItem)
 
     @Query("SELECT * FROM pokemon ORDER BY id DESC LIMIT 1")
-    fun getLastStoredPokemonObject(): CustomPokemonListItem
-
+    suspend fun getLastStoredPokemonObject(): CustomPokemonListItem?
 }
