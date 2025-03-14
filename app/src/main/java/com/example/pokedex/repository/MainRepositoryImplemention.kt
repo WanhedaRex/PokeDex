@@ -12,18 +12,37 @@ class MainRepositoryImplemention @Inject constructor(
     private val pokeApi: ApiInterface,
     private val pokeDB: PokemonDAO
 ) : MainRepository {
+    override suspend fun deleteAllSavedPokemon() {
+        pokeDB.deleteAllSavedPokemon() // Delegate to DAO
+    }
+
+
+    override suspend fun searchPokemonByQuery(query: String): Resource<List<CustomPokemonListItem>> {
+        val apiId = query.toIntOrNull() // Convert query to Int if possible
+        val result = pokeDB.searchPokemonByQuery(query, apiId)
+        val filteredResult = result.filter { it.apiId <= FIRST_GEN_LIMIT } // Filter to Gen 1
+        return if (filteredResult.isNotEmpty()) {
+            Resource.Success(filteredResult)
+        } else {
+            Resource.Error("No Pokémon found matching query: $query")
+        }
+    }
 
     private val fiveMinutesAgo = System.currentTimeMillis() - Constants.CACHE
+    private val FIRST_GEN_LIMIT = 151
 
     override suspend fun getPokemonList(): Resource<List<CustomPokemonListItem>> {
         val responseFromDB = pokeDB.getPokemon()
 
         if (responseFromDB.isNotEmpty()) {
-            return Resource.Success(responseFromDB)
+
+            val filteredList = responseFromDB.filter { it.apiId <= FIRST_GEN_LIMIT }
+            return Resource.Success(filteredList)
         } else {
             val preSeedList = mutableListOf<CustomPokemonListItem>()
 
-            for (i in 1..10) {
+
+            for (i in 1..FIRST_GEN_LIMIT) {
                 when (val apiResult = getPokemonDetail(i)) {
                     is Resource.Success -> {
                         apiResult.data?.let { newPokemon ->
@@ -51,9 +70,13 @@ class MainRepositoryImplemention @Inject constructor(
         val lastStoredPokemon = getLastStoredPokemon()
         val nextPokemonId = lastStoredPokemon?.apiId?.plus(1) ?: return Resource.Error("No stored Pokémon found")
 
-        val pokemonList = mutableListOf<CustomPokemonListItem>()
+        if (nextPokemonId > FIRST_GEN_LIMIT) {
+            return Resource.Success(emptyList())
+        }
 
-        for (i in nextPokemonId..(nextPokemonId + 9)) {
+        val pokemonList = mutableListOf<CustomPokemonListItem>()
+        val endId = minOf(nextPokemonId + 9, FIRST_GEN_LIMIT)
+        for (i in nextPokemonId..endId) {
             when (val apiResult = getPokemonDetail(i)) {
                 is Resource.Success -> {
                     apiResult.data?.let { newPokemon ->
@@ -72,7 +95,7 @@ class MainRepositoryImplemention @Inject constructor(
             }
         }
         pokeDB.insertPokemonList(pokemonList)
-        return Resource.Success(pokeDB.getPokemon()) // Return full list, not just new batch
+        return Resource.Success(pokemonList)
     }
 
     override suspend fun getSavedPokemon(): Resource<List<CustomPokemonListItem>> {

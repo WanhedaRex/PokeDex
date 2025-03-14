@@ -14,55 +14,62 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ListViewModel @Inject constructor(private val repository: MainRepository) : ViewModel() {
-
     private val _pokemonList = MutableLiveData<Resource<List<CustomPokemonListItem>>>()
     val pokemonList: LiveData<Resource<List<CustomPokemonListItem>>> get() = _pokemonList
 
-    private var isFetching = false // Prevents concurrent fetches
-    private val allPokemon = mutableListOf<CustomPokemonListItem>() // Accumulates unique Pokémon
+    private var currentList = mutableListOf<CustomPokemonListItem>()
 
-    init {
-        getPokemonList() // Initial fetch
+    fun searchPokemon(query: String) {
+        _pokemonList.postValue(Resource.Loading("Searching Pokémon"))
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val result = repository.searchPokemonByQuery(query)
+                result.data?.let {
+                    currentList.clear()
+                    currentList.addAll(it)
+                    _pokemonList.postValue(Resource.Success(currentList.toList()))
+                } ?: _pokemonList.postValue(Resource.Error("No results found"))
+            } catch (e: Exception) {
+                _pokemonList.postValue(Resource.Error("Search failed: ${e.message}"))
+            }
+        }
     }
 
     fun getPokemonList() {
-        if (isFetching) return // Avoid duplicate fetches
-        isFetching = true
-        allPokemon.clear() // Clear previous data for fresh start
-        _pokemonList.postValue(Resource.Loading("Fetching Pokémon list..."))
+        _pokemonList.postValue(Resource.Loading("Fetching Pokémon"))
         viewModelScope.launch(Dispatchers.IO) {
-            val result = repository.getPokemonList()
-            handleFetchResult(result)
-            isFetching = false
+            try {
+                val result = repository.getPokemonList()
+                result.data?.let {
+                    currentList.clear()
+                    currentList.addAll(it)
+                    _pokemonList.postValue(Resource.Success(currentList.toList()))
+                } ?: _pokemonList.postValue(Resource.Error("Empty list"))
+            } catch (e: Exception) {
+                _pokemonList.postValue(Resource.Error("Failed to load Pokémon: ${e.message}"))
+            }
         }
     }
 
     fun getNextPage() {
-        if (isFetching) return // Avoid duplicate fetches
-        isFetching = true
-        _pokemonList.postValue(Resource.Loading("Fetching next page..."))
+        _pokemonList.postValue(Resource.Loading("Fetching next page"))
         viewModelScope.launch(Dispatchers.IO) {
-            val result = repository.getPokemonListNextPage()
-            handleFetchResult(result)
-            isFetching = false
+            try {
+                val result = repository.getPokemonListNextPage()
+                result.data?.let { newItems ->
+                    val newBatch = newItems.filter { it !in currentList }
+                    currentList.addAll(newBatch)
+                    _pokemonList.postValue(Resource.Success(currentList.toList()))
+                } ?: _pokemonList.postValue(Resource.Error("Empty next page"))
+            } catch (e: Exception) {
+                _pokemonList.postValue(Resource.Error("Failed to load next page: ${e.message}"))
+            }
         }
     }
 
-    private fun handleFetchResult(result: Resource<List<CustomPokemonListItem>>) {
-        when (result) {
-            is Resource.Success -> {
-                result.data?.let { newPokemon ->
-                    // Add only unique Pokémon based on apiId
-                    val uniqueNewPokemon = newPokemon.filter { newItem ->
-                        allPokemon.none { it.apiId == newItem.apiId }
-                    }
-                    allPokemon.addAll(uniqueNewPokemon)
-                    _pokemonList.postValue(Resource.Success(allPokemon.toList()))
-                } ?: _pokemonList.postValue(Resource.Error("No data received"))
-            }
-            is Resource.Error -> _pokemonList.postValue(result)
-            is Resource.Loading -> _pokemonList.postValue(result)
-            is Resource.Expired -> _pokemonList.postValue(result)
+    fun savePokemon(pokemon: CustomPokemonListItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.savePokemon(pokemon)
         }
     }
 }

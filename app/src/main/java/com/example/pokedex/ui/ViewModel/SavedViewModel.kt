@@ -29,9 +29,21 @@ class SavedViewModel @Inject constructor(private val repository: MainRepository)
     }
 
 
-    fun deletePokemon(customPokemonListItem: CustomPokemonListItem){
+    fun deletePokemon(customPokemonListItem: CustomPokemonListItem) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.savePokemon(customPokemonListItem)
+            _pokemonList.postValue(repository.getSavedPokemon())
+        }
+    }
+
+    fun deleteAllPokemon() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                repository.deleteAllSavedPokemon()
+                _pokemonList.postValue(Resource.Success(emptyList()))
+            } catch (e: Exception) {
+                _pokemonList.postValue(Resource.Error("Failed to delete all Pokémon: ${e.message}"))
+            }
         }
     }
 }
